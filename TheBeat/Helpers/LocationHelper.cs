@@ -10,14 +10,14 @@ namespace TheBeat.Helpers
 {
     class LocationHelper
     {
-        public static Models.ScenarioData SelectClosestScenarioToPlayer(List<Models.ScenarioData> scenarios)
+        public static Tuple<Models.ScenarioData, float>SelectClosestScenarioToPlayer(List<Models.ScenarioData> scenarios)
         {
-            float distanceToPlayer = 0f;
+            float distanceToPlayer = 100000f;
             Models.ScenarioData closestScenario = null;
 
             foreach (Models.ScenarioData scenario in scenarios)
             {
-                if (scenario == null)
+                if (closestScenario == null)
                 {
                     closestScenario = scenario;
                     distanceToPlayer = Game.LocalPlayer.Character.Position.DistanceTo(scenario.Position);
@@ -31,9 +31,7 @@ namespace TheBeat.Helpers
                     }
                 }
             }
-            Game.LogTrivial("THE BEAT>>>> LocationHelper line 34: " + closestScenario.Name);
-
-            return closestScenario;
+            return Tuple.Create(closestScenario, distanceToPlayer);
         }
         public static bool PlayerWithinLocation(float distanceFromLocation, Vector3 location)
         {

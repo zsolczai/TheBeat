@@ -11,48 +11,44 @@ using LSPD_First_Response.Mod.API;
 using LSPD_First_Response.Mod.Callouts;
 using Rage;
 using TheBeat.Helpers;
-using TheBeat.Models;
-using TheBeat.ScenarioData;
 
 [assembly: Rage.Attributes.Plugin("The Beat", Description = "Creates Ambient Events")]
 namespace TheBeat
 {
     public static class EntryPoint
     {
+        private static Blip debugBlip1;
+        private static Blip debugBlip2;
+
         private static List<Models.ScenarioData> scenarios = new List<Models.ScenarioData>();
-        private static Models.ScenarioData closestScenario
-        {
-            get
-            {
-                return closestScenario;
-            }
-            set
-            {
-                closestScenario = value;
-                StartLogic();
-                Game.DisplaySubtitle("Closest scenario changed to: " + closestScenario.Name);
-            }
-        }
+        private static Models.ScenarioData closestScenario = new Models.ScenarioData();
+        private static bool logicLoopShouldRun = false;
         public static void Main()
         {
             AssignScenarios();
             UpdateScenarios();
+            StartLogic();
         }
 
         private static void AssignScenarios()
         {
-            Models.ScenarioData fightScenario = new Models.ScenarioData();
-            fightScenario.Name = "Fight Scenario";
-            fightScenario.ChanceToActivate = 100;
-            fightScenario.Position = new Vector3(2302.0f, 3071.0f, 0f);
-            fightScenario.ActivateDistance = 100f;
-            scenarios.Add(fightScenario);
+            Models.ScenarioData fightScenarioData = new Models.ScenarioData();
+            fightScenarioData.Name = "Fight Scenario";
+            fightScenarioData.ChanceToActivate = 100;
+            fightScenarioData.Position = new Vector3(2302.0f, 3071.0f, 0f);
+            fightScenarioData.ActivateDistance = 100f;
+            scenarios.Add(fightScenarioData);
+            debugBlip1 = new Blip(fightScenarioData.Position, fightScenarioData.ActivateDistance);
+            debugBlip1.Alpha = 0.5f;
 
             Models.ScenarioData loiteringScenarioData = new Models.ScenarioData();
             loiteringScenarioData.Name = "Loitering Scenario";
             loiteringScenarioData.ChanceToActivate = 100;
             loiteringScenarioData.Position = new Vector3(2325.0f, 3141.0f, 0f);
             loiteringScenarioData.ActivateDistance = 100f;
+            debugBlip2 = new Blip(loiteringScenarioData.Position, loiteringScenarioData.ActivateDistance);
+            debugBlip2.Alpha = 0.5f;
+
             scenarios.Add(loiteringScenarioData);
         }
 
@@ -65,27 +61,33 @@ namespace TheBeat
                 {
                     continue;
                 }
-                Game.LogTrivial(">>>> line 72 Scenario count is " + scenarios.Count);
-                Game.LogTrivial(">>>> line 74 Scenario name is: " + scenarios[0].Name);
-                //closestScenario = scenarios.First();
-                //closestScenario = LocationHelper.SelectClosestScenarioToPlayer(scenarios);
+                Tuple<Models.ScenarioData, float> tuple = LocationHelper.SelectClosestScenarioToPlayer(scenarios);
+                closestScenario = tuple.Item1;
+                float scenarioDistanceToPlayer = tuple.Item2;
+                if (scenarioDistanceToPlayer < closestScenario.ActivateDistance)
+                {
+                    logicLoopShouldRun = true;
+                    StartLogic();
+                }
+                else
+                {
+                    logicLoopShouldRun = false;
+                }
                 GameFiber.Yield();
             }
         }
 
         private static void StartLogic()
         {
-            while (true)
+            while (logicLoopShouldRun)
             {
                 GameFiber.Sleep(1000);
                 if (closestScenario == null)
                 {
-                    Game.LogTrivial(">>>> got to line 65 continue while");
                     continue;
                 }
-                Game.LogTrivial(">>>> got to line 68");
 
-                if (Helpers.LocationHelper.PlayerWithinLocation(50f, closestScenario.Position))
+                if (LocationHelper.PlayerWithinLocation(50f, closestScenario.Position))
                 {
                     Game.DisplaySubtitle("Player entered scenario: " + closestScenario.Name);
                 }
