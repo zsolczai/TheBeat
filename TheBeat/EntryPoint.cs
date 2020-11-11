@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,13 +19,17 @@ namespace TheBeat
 {
     public static class EntryPoint
     {
-        private static List<Scenario> scenarios = new List<Scenario>();
-        private static Scenario closestScenario
+        private static List<Models.ScenarioData> scenarios = new List<Models.ScenarioData>();
+        private static Models.ScenarioData closestScenario
         {
-            get => closestScenario;
+            get
+            {
+                return closestScenario;
+            }
             set
             {
                 closestScenario = value;
+                StartLogic();
                 Game.DisplaySubtitle("Closest scenario changed to: " + closestScenario.Name);
             }
         }
@@ -31,14 +37,53 @@ namespace TheBeat
         {
             AssignScenarios();
             UpdateScenarios();
+        }
 
+        private static void AssignScenarios()
+        {
+            Models.ScenarioData fightScenario = new Models.ScenarioData();
+            fightScenario.Name = "Fight Scenario";
+            fightScenario.ChanceToActivate = 100;
+            fightScenario.Position = new Vector3(2302.0f, 3071.0f, 0f);
+            fightScenario.ActivateDistance = 100f;
+            scenarios.Add(fightScenario);
+
+            Models.ScenarioData loiteringScenarioData = new Models.ScenarioData();
+            loiteringScenarioData.Name = "Loitering Scenario";
+            loiteringScenarioData.ChanceToActivate = 100;
+            loiteringScenarioData.Position = new Vector3(2325.0f, 3141.0f, 0f);
+            loiteringScenarioData.ActivateDistance = 100f;
+            scenarios.Add(loiteringScenarioData);
+        }
+
+        private static void UpdateScenarios()
+        {
             while (true)
             {
-                if (closestScenario == null)
+                GameFiber.Sleep(500);
+                if (scenarios.Count == 0)
                 {
                     continue;
                 }
-                Game.LogTrivial("THE BEAT>>>> got to line 41");
+                Game.LogTrivial(">>>> line 72 Scenario count is " + scenarios.Count);
+                Game.LogTrivial(">>>> line 74 Scenario name is: " + scenarios[0].Name);
+                //closestScenario = scenarios.First();
+                //closestScenario = LocationHelper.SelectClosestScenarioToPlayer(scenarios);
+                GameFiber.Yield();
+            }
+        }
+
+        private static void StartLogic()
+        {
+            while (true)
+            {
+                GameFiber.Sleep(1000);
+                if (closestScenario == null)
+                {
+                    Game.LogTrivial(">>>> got to line 65 continue while");
+                    continue;
+                }
+                Game.LogTrivial(">>>> got to line 68");
 
                 if (Helpers.LocationHelper.PlayerWithinLocation(50f, closestScenario.Position))
                 {
@@ -49,29 +94,6 @@ namespace TheBeat
                 {
                     Game.DisplaySubtitle("Player exited scenario: " + closestScenario.Name);
                 }
-                //GameFiber.Sleep(500);
-                GameFiber.Yield();
-            }
-        }
-
-        private static void AssignScenarios()
-        {
-            scenarios.Add(LoiteringScenario.InitScenario());
-            scenarios.Add(FightingScenario.InitScenario());
-            Game.LogTrivial("THE BEAT>>>> Scenario count is " + scenarios.Count);
-        }
-
-        private static void UpdateScenarios()
-        {  
-            while (true)
-            {
-                if (scenarios.Count == 0)
-                {
-                    continue;
-                }
-                Game.LogTrivial("THE BEAT>>>> line 72 Scenario count is " + scenarios.Count);
-                closestScenario = LocationHelper.SelectClosestScenarioToPlayer(scenarios);
-                //GameFiber.Sleep(3000);
                 GameFiber.Yield();
             }
         }
@@ -95,7 +117,7 @@ namespace TheBeat
         //    //If the player is going on duty, register the callout.
         //    if (onDuty)
         //    {
-                
+
         //    }
         //}
 

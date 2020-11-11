@@ -51,9 +51,10 @@
     <Compile Include="EntryPoint.cs" />
     <Compile Include="Helpers\LocationHelper.cs" />
     <Compile Include="Models\Scenario.cs" />
+    <Compile Include="Models\ScenarioData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ScenarioData\FightingScenario.cs" />
-    <Compile Include="ScenarioData\LoiteringScenario.cs" />
+    <Compile Include="Scenarios\FightScenario.cs" />
+    <Compile Include="Scenarios\LoiteringScenario.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -7,14 +7,13 @@ using Rage;
 
 namespace TheBeat.Models
 {
-    class Scenario
+    public class Scenario
     {
-        public enum State { running, idle }
-        public string Name { get; set; }
-        public int ChanceToActivate { get; set; }
-        public Vector3 Position { get; set; }
-        public float ActivateDistance { get; set; }
-        public State state { get; set; }
-
+        public Scenario(ScenarioData scenarioData)
+        {
+            this.ScenarioData = scenarioData;
+        }
+        public ScenarioData ScenarioData { get; set; }
     }
+
 }

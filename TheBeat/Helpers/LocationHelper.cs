@@ -10,12 +10,12 @@ namespace TheBeat.Helpers
 {
     class LocationHelper
     {
-        public static Scenario SelectClosestScenarioToPlayer(List<Scenario> scenarios)
+        public static Models.ScenarioData SelectClosestScenarioToPlayer(List<Models.ScenarioData> scenarios)
         {
             float distanceToPlayer = 0f;
-            Scenario closestScenario = null;
+            Models.ScenarioData closestScenario = null;
 
-            foreach (Scenario scenario in scenarios)
+            foreach (Models.ScenarioData scenario in scenarios)
             {
                 if (scenario == null)
                 {
